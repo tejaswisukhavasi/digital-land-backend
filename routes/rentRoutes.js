@@ -1,19 +1,23 @@
 import express from "express";
 import multer from "multer";
-import path from "path";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
+import cloudinary from "../config/cloudinaryConfig.js";
 import { addRent, getAllRents } from "../controllers/rentController.js";
 
 const router = express.Router();
-const uploadsDir = path.resolve("uploads");
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadsDir),
-  filename: (req, file, cb) => cb(null, `${Date.now()}${path.extname(file.originalname)}`)
+// Cloudinary storage setup
+const storage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: "digital-land/rents", // Folder name in Cloudinary
+    allowed_formats: ["jpg", "jpeg", "png"],
+  },
 });
 
 const upload = multer({ storage });
 
-// ✅ Routes
+// Routes
 router.post("/", upload.single("image"), addRent);
 router.get("/", getAllRents);
 

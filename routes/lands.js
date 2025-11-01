@@ -1,23 +1,24 @@
 import express from "express";
 import multer from "multer";
-import path from "path";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
+import cloudinary from "../config/cloudinaryConfig.js";
 import { protect } from "../middleware/authMiddleware.js";
 import { addLand, getAllLands, getLandById } from "../controllers/landController.js";
 
 const router = express.Router();
 
-// multer setup
-const storage = multer.diskStorage({
-  destination(req, file, cb) {
-    cb(null, "uploads/");
-  },
-  filename(req, file, cb) {
-    const ext = path.extname(file.originalname);
-    cb(null, `${Date.now()}${ext}`);
+// Cloudinary storage setup
+const storage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: "digital-land/lands", // Folder name in Cloudinary
+    allowed_formats: ["jpg", "jpeg", "png"],
   },
 });
+
 const upload = multer({ storage });
 
+// Routes
 router.post("/", protect, upload.single("image"), addLand);
 router.get("/", getAllLands);
 router.get("/:id", getLandById);
