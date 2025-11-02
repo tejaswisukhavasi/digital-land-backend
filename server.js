@@ -8,13 +8,16 @@ import connectDB from "./config/db.js";
 
 // ✅ IMPORT CONTROLLERS
 import { registerUser, loginUser } from "./controllers/authController.js";
-import { addLand, getAllLands, getLandById } from "./controllers/landController.js";
+import { getAllLands, getLandById } from "./controllers/landController.js";
 import rentRoutes from "./routes/rentRoutes.js";
 import { protect } from "./middleware/authMiddleware.js";
 
-// ✅ IMPORT MODELS (THIS WAS MISSING!)
+// ✅ IMPORT MODELS
 import Land from "./models/Land.js";
 import Rent from "./models/Rent.js";
+
+// ✅ IMPORT CLOUDINARY LAND ROUTES
+import landRoutes from "./routes/lands.js"; // ✅ added this
 
 dotenv.config();
 connectDB();
@@ -33,19 +36,9 @@ app.use(
   })
 );
 
-// ✅ Ensure uploads folder exists
+// ✅ Ensure uploads folder exists (keep this in case)
 const uploadsDir = path.resolve("uploads");
 if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir);
-
-// ✅ Multer Storage
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadsDir),
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    cb(null, `${Date.now()}${ext}`);
-  },
-});
-const upload = multer({ storage });
 
 // ================================
 // ✅ AUTH ROUTES
@@ -54,20 +47,17 @@ app.post("/api/auth/register", registerUser);
 app.post("/api/auth/login", loginUser);
 
 // ================================
-// ✅ LANDS ROUTES
+// ✅ LANDS ROUTES (NOW USE CLOUDINARY)
 // ================================
-app.post("/api/lands", protect, upload.single("image"), addLand);
-app.get("/api/lands", getAllLands);
-app.get("/api/lands/:id", getLandById);
+app.use("/api/lands", landRoutes); // ✅ replaces manual upload/post route
 
-// ✅ ✅ SEARCH LANDS BY LOCATION
+// ✅ SEARCH LANDS BY LOCATION (keep)
 app.get("/api/lands/search/:location", async (req, res) => {
   try {
     const location = req.params.location;
     const lands = await Land.find({
       location: { $regex: location, $options: "i" },
     });
-
     res.json(lands);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -79,21 +69,20 @@ app.get("/api/lands/search/:location", async (req, res) => {
 // ================================
 app.use("/api/rents", rentRoutes);
 
-// ✅ ✅ SEARCH RENTS BY LOCATION
+// ✅ SEARCH RENTS BY LOCATION
 app.get("/api/rents/search/:location", async (req, res) => {
   try {
     const location = req.params.location;
     const rents = await Rent.find({
       location: { $regex: location, $options: "i" },
     });
-
     res.json(rents);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
 
-// ✅ Static Uploads
+// ✅ Static Uploads (keep for backward compatibility)
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 // ✅ START SERVER

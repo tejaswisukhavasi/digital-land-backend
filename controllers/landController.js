@@ -1,17 +1,31 @@
 import Land from "../models/Land.js";
-import path from "path";
-import fs from "fs";
+import cloudinary from "../config/cloudinary.js"; // ✅ Import Cloudinary
 
 export const addLand = async (req, res) => {
   try {
     const { title, location, price, size, sizeValue, description } = req.body;
-    const imageFile = req.file ? req.file.filename : null;
+
+    let imageUrl = null;
+
+    // ✅ If image is uploaded, use the Cloudinary path
+    if (req.file && req.file.path) {
+      imageUrl = req.file.path; // multer-storage-cloudinary gives Cloudinary URL here
+    }
+
     const land = await Land.create({
-      title, location, price, size, sizeValue: sizeValue ? Number(sizeValue) : undefined,
-      description, image: imageFile, seller: req.user._id
+      title,
+      location,
+      price,
+      size,
+      sizeValue: sizeValue ? Number(sizeValue) : undefined,
+      description,
+      image: imageUrl, // ✅ Store Cloudinary URL instead of filename
+      seller: req.user._id,
     });
+
     res.status(201).json(land);
   } catch (err) {
+    console.error("Error adding land:", err);
     res.status(500).json({ message: err.message });
   }
 };

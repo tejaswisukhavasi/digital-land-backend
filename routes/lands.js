@@ -1,13 +1,13 @@
 import express from "express";
 import multer from "multer";
+import { CloudinaryStorage } from "multer-storage-cloudinary"; // ✅ add this line
 import cloudinary from "../config/cloudinary.js";
-import cloudinary from "../config/cloudinaryConfig.js";
 import { protect } from "../middleware/authMiddleware.js";
 import { addLand, getAllLands, getLandById } from "../controllers/landController.js";
 
 const router = express.Router();
 
-// Cloudinary storage setup
+// ✅ Cloudinary storage setup
 const storage = new CloudinaryStorage({
   cloudinary,
   params: {
@@ -18,7 +18,7 @@ const storage = new CloudinaryStorage({
 
 const upload = multer({ storage });
 
-// Routes
+// ✅ Routes
 router.post("/", protect, upload.single("image"), addLand);
 router.get("/", getAllLands);
 router.get("/:id", getLandById);
