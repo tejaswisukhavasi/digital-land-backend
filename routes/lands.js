@@ -1,6 +1,6 @@
 import express from "express";
 import multer from "multer";
-import { CloudinaryStorage } from "multer-storage-cloudinary"; // ✅ add this line
+import { CloudinaryStorage } from "multer-storage-cloudinary";
 import cloudinary from "../config/cloudinary.js";
 import { protect } from "../middleware/authMiddleware.js";
 import { addLand, getAllLands, getLandById } from "../controllers/landController.js";
@@ -11,7 +11,7 @@ const router = express.Router();
 const storage = new CloudinaryStorage({
   cloudinary,
   params: {
-    folder: "digital-land/lands", // Folder name in Cloudinary
+    folder: "digital-land/lands",
     allowed_formats: ["jpg", "jpeg", "png"],
   },
 });

@@ -4,7 +4,7 @@ export const addLand = async (req, res) => {
   try {
     const { title, location, price, size, sizeValue, description } = req.body;
 
-    // ✅ Save Cloudinary URL instead of filename
+    // ✅ Cloudinary gives 'req.file.path' as the uploaded image URL
     const imageUrl = req.file ? req.file.path : null;
 
     const land = await Land.create({
@@ -14,12 +14,13 @@ export const addLand = async (req, res) => {
       size,
       sizeValue: sizeValue ? Number(sizeValue) : undefined,
       description,
-      image: imageUrl, // ✅ store full URL from Cloudinary
+      image: imageUrl,
       seller: req.user._id
     });
 
     res.status(201).json(land);
   } catch (err) {
+    console.error("❌ Error adding land:", err);
     res.status(500).json({ message: err.message });
   }
 };
