@@ -1,5 +1,6 @@
 import Rent from "../models/Rent.js";
 
+// ✅ Add new rent
 export const addRent = async (req, res) => {
   try {
     const { title, location, rentType, size, price, duration, description, email } = req.body;
@@ -16,7 +17,7 @@ export const addRent = async (req, res) => {
       duration,
       description,
       email,
-      image: imageUrl // ✅ store the Cloudinary URL
+      image: imageUrl, // ✅ store Cloudinary URL
     });
 
     res.status(201).json(rent);
@@ -25,11 +26,26 @@ export const addRent = async (req, res) => {
   }
 };
 
+// ✅ Get all rents
 export const getAllRents = async (req, res) => {
   try {
     const rents = await Rent.find();
     res.json(rents);
   } catch (err) {
     res.status(500).json({ message: err.message });
+  }
+};
+
+// ✅ Get single rent by ID (for "View Details" page)
+export const getRentById = async (req, res) => {
+  try {
+    const rent = await Rent.findById(req.params.id);
+    if (!rent) {
+      return res.status(404).json({ message: "Rent not found" });
+    }
+    res.json(rent);
+  } catch (err) {
+    console.error("Error fetching rent by ID:", err);
+    res.status(500).json({ message: "Server error" });
   }
 };
